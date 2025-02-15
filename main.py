@@ -7,52 +7,40 @@ screens = {}
 visitedScreens = []
 
 # Colors and styles
-BG_COLOR = "#2E2E2E"  # Dark grey
-FG_COLOR = "#FFFFFF"  # White
-BUTTON_COLOR = "#404040"  # Slightly lighter grey for buttons
-TEXT_COLOR = "#FFFFFF"  # White text for text area and input field
+BG_COLOR = "#2E2E2E"  
+FG_COLOR = "#FFFFFF"  
+BUTTON_COLOR = "#404040" 
+TEXT_COLOR = "#FFFFFF"
 
 BUTTON_STYLE = {
-    "bg": BUTTON_COLOR,  # Background color
-    "fg": FG_COLOR,  # Text color
-    "activebackground": "#505050",  # Background color when clicked
-    "activeforeground": FG_COLOR,  # Text color when clicked
+    "bg": BUTTON_COLOR, 
+    "fg": FG_COLOR, 
+    "activebackground": "#505050",  
+    "activeforeground": FG_COLOR,  
 }
 
 #screens
-def show_screen(screen_name):
+def show_frame(screen_name):
     global crntScreen
 
     #If switching to a new screen add previous to visitedScreens
-    if crntScreen and (not visitedScreens or visitedScreens[-1] != crntScreen):
-        visitedScreens.append(crntScreen)
-
-    #Hide old screen
     if crntScreen:
-        for widget in screens[crntScreen]:
-            if hasattr(widget, "pack_info"):
-                widget.pack_forget()
-            else:
-                widget.grid_forget()
+        visitedScreens.append(crntScreen)
+        screens[crntScreen].pack_forget()
 
-    #Display new screen
     crntScreen = screen_name
-    for widget in screens[crntScreen]:
-        if crntScreen == "main":
-            widget.pack(expand=True, fill="both")
-        else:
-            widget.grid(row=0, column=0, sticky="nsew")
+    screens[crntScreen].pack(expand=True, fill="both")
 
 def go_back():
     if visitedScreens:
         lastScreen = visitedScreens.pop() 
-        show_screen(lastScreen)
+        show_frame(lastScreen)
 
 def set_mode(modeType):
     global mode
     mode = modeType
     print(f"Mode set to: {mode}")
-    show_screen("terminalDiagnostics")
+    show_frame("terminalDiagnostics")
 
 #window innit
 window = tk.Tk()
@@ -65,11 +53,12 @@ window.grid_columnconfigure(0, weight=1)
 
 # --- Define Screens --- #
 #main
-btnClient = tk.Button(window, text="Using Server (Linux)", font=('Arial', 18), **BUTTON_STYLE, command=lambda: set_mode("server"))
-btnServer = tk.Button(window, text="Using Client (Windows)", font=('Arial', 18), **BUTTON_STYLE, command=lambda: set_mode("client"))
+mainFrame = tk.Frame(window, bg=BG_COLOR)
+btnClient = tk.Button(mainFrame, text="Using Client (Windows)", font=('Arial', 18), **BUTTON_STYLE, command=lambda: set_mode("client"))
+btnServer = tk.Button(mainFrame, text="Using Server (Linux)", font=('Arial', 18), **BUTTON_STYLE, command=lambda: set_mode("server"))
 btnClient.pack(pady=10)
 btnServer.pack(pady=10)
-screens["main"] = [btnClient, btnServer]
+screens["main"] = mainFrame
 
 #terminal and buttons
 terminalFrame = tk.Frame(window, bg=BG_COLOR)
@@ -93,10 +82,10 @@ btn3.grid(row=2, column=0, sticky="nsew", padx=2, pady=2)
 text_area.grid(row=0, column=1, rowspan=2, sticky="nsew", padx=5, pady=5)
 input_field.grid(row=2, column=1, sticky="ew", padx=5, pady=5)
 
-screens["terminalDiagnostics"] = [terminalFrame]
+screens["terminalDiagnostics"] = terminalFrame
 # --- Define Screens --- #
 
 # Start with Main Screen
-show_screen("main")
+show_frame("main")
 
 window.mainloop()
